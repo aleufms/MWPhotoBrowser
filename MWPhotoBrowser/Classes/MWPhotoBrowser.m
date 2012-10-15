@@ -900,11 +900,11 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
     if (self.wantsFullScreenLayout) {
         
         // Get status bar height if visible
-        CGFloat statusBarHeight = 0;
-        if (![UIApplication sharedApplication].statusBarHidden) {
-            CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
-            statusBarHeight = MIN(statusBarFrame.size.height, statusBarFrame.size.width);
-        }
+//        CGFloat statusBarHeight = 0;
+//        if (![UIApplication sharedApplication].statusBarHidden) {
+//            CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
+//            statusBarHeight = MIN(statusBarFrame.size.height, statusBarFrame.size.width);
+//        }
         
         // Status Bar
         if ([UIApplication instancesRespondToSelector:@selector(setStatusBarHidden:withAnimation:)]) {
@@ -914,10 +914,10 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
         }
         
         // Get status bar height if visible
-        if (![UIApplication sharedApplication].statusBarHidden) {
-            CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
-            statusBarHeight = MIN(statusBarFrame.size.height, statusBarFrame.size.width);
-        }
+//        if (![UIApplication sharedApplication].statusBarHidden) {
+//            CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
+//            statusBarHeight = MIN(statusBarFrame.size.height, statusBarFrame.size.width);
+//        }
         
         // Set navigation bar frame
 //        CGRect navBarFrame = self.navigationController.navigationBar.frame;

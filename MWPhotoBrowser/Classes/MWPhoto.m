@@ -80,7 +80,7 @@ caption = _caption;
 
 - (void)dealloc {
     [_caption release];
-    [[SDWebImageManager sharedManager] cancelForDelegate:self];
+    [[SDWebImageManager sharedManager] cancelAll];
 	[_photoPath release];
 	[_photoURL release];
 	[_underlyingImage release];
@@ -106,7 +106,21 @@ caption = _caption;
         } else if (_photoURL) {
             // Load async from web (using SDWebImage)
             SDWebImageManager *manager = [SDWebImageManager sharedManager];
-            [manager downloadWithURL:_photoURL delegate:self];
+//            [manager downloadWithURL:_photoURL delegate:self];
+            
+            __strong MWPhoto *weakSelf = self;
+            [manager downloadWithURL:_photoURL options:SDWebImageRetryFailed progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) {
+                if (error) {
+                    self.underlyingImage = nil;
+                    MWLog(@"SDWebImage failed to download image: %@", error);
+                    [weakSelf imageDidFinishLoadingSoDecompress];
+                }
+                else {
+                    self.underlyingImage = image;
+                    [weakSelf imageDidFinishLoadingSoDecompress];
+                }
+                
+            }];
         } else {
             // Failed - no source
             self.underlyingImage = nil;
@@ -118,7 +132,7 @@ caption = _caption;
 // Release if we can get it again from path or url
 - (void)unloadUnderlyingImage {
     _loadingInProgress = NO;
-    [[SDWebImageManager sharedManager] cancelForDelegate:self];
+//    [[SDWebImageManager sharedManager] cancelAll];
 	if (self.underlyingImage && (_photoPath || _photoURL)) {
 		self.underlyingImage = nil;
 	}
@@ -151,7 +165,19 @@ caption = _caption;
     NSAssert([[NSThread currentThread] isMainThread], @"This method must be called on the main thread.");
     if (self.underlyingImage) {
         // Decode image async to avoid lagging when UIKit lazy loads
-        [[SDWebImageDecoder sharedImageDecoder] decodeImage:self.underlyingImage withDelegate:self userInfo:nil];
+//        [[SDWebImageDecoder sharedImageDecoder] decodeImage:self.underlyingImage withDelegate:self userInfo:nil];
+//        [self imageLoadingComplete];
+        
+        __block MWPhoto *strongSelf = self;
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+            strongSelf.underlyingImage = [UIImage decodedImageWithImage:self.underlyingImage];
+            
+            __block MWPhoto *otherStrongSelf = strongSelf;
+            dispatch_async(dispatch_get_main_queue(), ^(void) {
+                [otherStrongSelf imageLoadingComplete];
+            });
+            
+        });
     } else {
         // Failed
         [self imageLoadingComplete];
@@ -169,23 +195,23 @@ caption = _caption;
 #pragma mark - SDWebImage Delegate
 
 // Called on main
-- (void)webImageManager:(SDWebImageManager *)imageManager didFinishWithImage:(UIImage *)image {
-    self.underlyingImage = image;
-    [self imageDidFinishLoadingSoDecompress];
-}
+//- (void)webImageManager:(SDWebImageManager *)imageManager didFinishWithImage:(UIImage *)image {
+//    self.underlyingImage = image;
+//    [self imageDidFinishLoadingSoDecompress];
+//}
+//
+//// Called on main
+//- (void)webImageManager:(SDWebImageManager *)imageManager didFailWithError:(NSError *)error {
+//    self.underlyingImage = nil;
+//    MWLog(@"SDWebImage failed to download image: %@", error);
+//    [self imageDidFinishLoadingSoDecompress];
+//}
 
 // Called on main
-- (void)webImageManager:(SDWebImageManager *)imageManager didFailWithError:(NSError *)error {
-    self.underlyingImage = nil;
-    MWLog(@"SDWebImage failed to download image: %@", error);
-    [self imageDidFinishLoadingSoDecompress];
-}
-
-// Called on main
-- (void)imageDecoder:(SDWebImageDecoder *)decoder didFinishDecodingImage:(UIImage *)image userInfo:(NSDictionary *)userInfo {
-    // Finished compression so we're complete
-    self.underlyingImage = image;
-    [self imageLoadingComplete];
-}
+//- (void)imageDecoder:(SDWebImageDecoder *)decoder didFinishDecodingImage:(UIImage *)image userInfo:(NSDictionary *)userInfo {
+//    // Finished compression so we're complete
+//    self.underlyingImage = image;
+//    [self imageLoadingComplete];
+//}
 
 @end

@@ -30,4 +30,7 @@
 // the full width of the screen
 - (CGSize)sizeThatFits:(CGSize)size;
 
+@property (assign, nonatomic) UIScrollView *labelScrollView;
+@property (assign, nonatomic) UILabel *label;
+
 @end

@@ -817,7 +817,10 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
     CGRect pageFrame = [self frameForPageAtIndex:index];
     captionView.frame = CGRectMake(0, 0, pageFrame.size.width, 44); // set initial frame
     CGSize captionSize = [captionView sizeThatFits:CGSizeMake(pageFrame.size.width, 0)];
-    CGRect captionFrame = CGRectMake(pageFrame.origin.x, pageFrame.size.height - captionSize.height - (_toolbar.superview?_toolbar.frame.size.height:0), pageFrame.size.width, captionSize.height);
+    [captionView.labelScrollView setFrame:CGRectMake(0, 0, 320, (captionSize.height>=200)?200:captionSize.height)];
+    [captionView.labelScrollView setContentSize:captionSize];
+    [captionView.label setFrame:CGRectMake(0, 0, captionSize.width, captionSize.height)];
+    CGRect captionFrame = CGRectMake(pageFrame.origin.x, pageFrame.size.height - captionView.labelScrollView.frame.size.height - (_toolbar.superview?_toolbar.frame.size.height:0), pageFrame.size.width, captionView.labelScrollView.frame.size.height);
     return captionFrame;
 }
 
@@ -961,10 +964,10 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 
 // Enable/disable control visiblity timer
 - (void)hideControlsAfterDelay {
-	if (![self areControlsHidden]) {
-        [self cancelControlHiding];
-		_controlVisibilityTimer = [[NSTimer scheduledTimerWithTimeInterval:5 target:self selector:@selector(hideControls) userInfo:nil repeats:NO] retain];
-	}
+//	if (![self areControlsHidden]) {
+//        [self cancelControlHiding];
+//		_controlVisibilityTimer = [[NSTimer scheduledTimerWithTimeInterval:5 target:self selector:@selector(hideControls) userInfo:nil repeats:NO] retain];
+//	}
 }
 
 - (BOOL)areControlsHidden { return (_toolbar.alpha == 0); /* [UIApplication sharedApplication].isStatusBarHidden; */ }

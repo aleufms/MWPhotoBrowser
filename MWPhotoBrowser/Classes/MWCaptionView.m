@@ -38,19 +38,21 @@ static const CGFloat labelPadding = 10;
     CGSize textSize = [_label.text sizeWithFont:_label.font 
                               constrainedToSize:CGSizeMake(size.width - labelPadding*2, maxHeight)
                                   lineBreakMode:_label.lineBreakMode];
-    return CGSizeMake(size.width, textSize.height + labelPadding * 2);
+    if (textSize.height < 44)
+        textSize.height = 44;
+    return CGSizeMake(size.width, textSize.height/* + labelPadding*2*/);
 }
 
 - (void)setupCaption {
-    _label = [[UILabel alloc] initWithFrame:CGRectMake(labelPadding, 0, 
+    _label = [[UILabel alloc] initWithFrame:CGRectMake(labelPadding, 0,
                                                        self.bounds.size.width-labelPadding*2,
-                                                       self.bounds.size.height)];
-    _label.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+                                                       44)];
+//    _label.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
     _label.opaque = NO;
     _label.backgroundColor = [UIColor clearColor];
     _label.textAlignment = UITextAlignmentCenter;
-    _label.lineBreakMode = UILineBreakModeTailTruncation;
-    _label.numberOfLines = 3;
+    _label.lineBreakMode = UILineBreakModeWordWrap;
+    _label.numberOfLines = 0;
     _label.textColor = [UIColor whiteColor];
     _label.shadowColor = [UIColor blackColor];
     _label.shadowOffset = CGSizeMake(1, 1);
@@ -59,7 +61,11 @@ static const CGFloat labelPadding = 10;
         _label.text = [_photo caption] ? [_photo caption] : @" ";
     }
     
-    [self addSubview:_label];
+    _labelScrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, 320, 44)];
+    [_labelScrollView setBounces:YES];
+    [_labelScrollView addSubview:_label];
+    
+    [self addSubview:_labelScrollView];
 }
 
 - (void)dealloc {

@@ -66,10 +66,14 @@ static const CGFloat labelPadding = 10;
     [_labelScrollView addSubview:_label];
     
     [self addSubview:_labelScrollView];
+    
+//    [_label release];
+//    [_labelScrollView release];
 }
 
 - (void)dealloc {
     [_label release];
+    [_labelScrollView release];
     [_photo release];
     [super dealloc];
 }
